@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import FormEquipo from './FormEquipo';
 import '../styles/TablaAsignaciones.css';
 
-const TablaAsignaciones = ({ onEditar, onEliminar, onGuardarAsignacion, busqueda }) => {
+const TablaAsignaciones = ({ busqueda }) => {
   const [mostrarDetalles, setMostrarDetalles] = useState(false);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [filtroSede, setFiltroSede] = useState('');
@@ -28,10 +28,8 @@ const TablaAsignaciones = ({ onEditar, onEliminar, onGuardarAsignacion, busqueda
         if (Array.isArray(json)) {
           setDatos(json);
         } else if (json && Array.isArray(json.data)) {
-          // Si el JSON tiene estructura { data: [...] }
           setDatos(json.data);
         } else if (json && typeof json === 'object') {
-          // Si el JSON es un objeto, convertir a array con un elemento
           setDatos([json]);
         } else {
           throw new Error('El formato del JSON no es válido');
@@ -41,7 +39,7 @@ const TablaAsignaciones = ({ onEditar, onEliminar, onGuardarAsignacion, busqueda
       } catch (err) {
         console.error('Error cargando datos:', err);
         setError(err.message);
-        setDatos([]); // Asegurar que datos sea siempre un array
+        setDatos([]);
       } finally {
         setCargando(false);
       }
@@ -50,39 +48,65 @@ const TablaAsignaciones = ({ onEditar, onEliminar, onGuardarAsignacion, busqueda
     cargarDatos();
   }, []); 
 
+  // Función para generar un nuevo ID automáticamente
+  const generarNuevoId = () => {
+    if (datos.length === 0) return 1;
+    const maxId = Math.max(...datos.map(item => item.id || 0));
+    return maxId + 1;
+  };
+
+  // Función para guardar o actualizar una asignación
+  const handleGuardarAsignacion = (asignacion, indexEditar = null) => {
+    if (indexEditar !== null) {
+      // Actualizar registro existente
+      const datosActualizados = [...datos];
+      datosActualizados[indexEditar] = {
+        ...asignacion,
+        id: datos[indexEditar].id // Mantener el ID original
+      };
+      setDatos(datosActualizados);
+    } else {
+      // Crear nuevo registro
+      const nuevaAsignacion = {
+        ...asignacion,
+        id: generarNuevoId()
+      };
+      setDatos([...datos, nuevaAsignacion]);
+    }
+    
+    setMostrarFormulario(false);
+    setIndexEditando(null);
+  };
+
+  // Función para eliminar una asignación
+  const handleEliminar = (index) => {
+    const confirmacion = window.confirm("¿Estás seguro de eliminar esta asignación?");
+    if (confirmacion) {
+      const datosActualizados = datos.filter((_, i) => i !== index);
+      setDatos(datosActualizados);
+    }
+  };
+
   const toggleDetalles = () => setMostrarDetalles(!mostrarDetalles);
 
   const handleFiltroSede = (e) => setFiltroSede(e.target.value);
   const handleFiltroCargo = (e) => setFiltroCargo(e.target.value);
-
-  const handleGuardarAsignacion = (asignacion) => {
-    onGuardarAsignacion(asignacion, indexEditando);
-    setMostrarFormulario(false);
-    setIndexEditando(null);
-  };
 
   const handleEditar = (index) => {
     setIndexEditando(index);
     setMostrarFormulario(true);
   };
 
-  const handleEliminar = (index) => {
-    const confirmacion = window.confirm("¿Estás seguro de eliminar esta asignación?");
-    if (confirmacion) {
-      onEliminar(index);
-    }
-  };
-
   // Filtrar datos localmente
-  // const datosFiltrados = datos.filter((item) => {
-  //   const matchBusqueda = busqueda ? Object.values(item).some((val) =>
-  //     val.toLowerCase().includes(busqueda.toLowerCase())
-  //   ) : true;
-  //   const matchSede = filtroSede ? item.sede === filtroSede : true;
-  //   const matchCargo = filtroCargo ? item.cargo.toLowerCase().includes(filtroCargo.toLowerCase()) : true;
+  const datosFiltrados = datos.filter((item) => {
+    const matchBusqueda = busqueda ? Object.values(item).some((val) =>
+      String(val).toLowerCase().includes(busqueda.toLowerCase())
+    ) : true;
+    const matchSede = filtroSede ? item.sede === filtroSede : true;
+    const matchCargo = filtroCargo ? String(item.cargo).toLowerCase().includes(filtroCargo.toLowerCase()) : true;
 
-  //   return matchBusqueda && matchSede && matchCargo;
-  // });
+    return matchBusqueda && matchSede && matchCargo;
+  });
 
   // Mostrar estados de carga y error
   if (cargando) {
@@ -124,17 +148,24 @@ const TablaAsignaciones = ({ onEditar, onEliminar, onGuardarAsignacion, busqueda
           <option value="duitama" className='option'>Duitama</option>
         </select>
 
+        <input
+          type="text"
+          placeholder="🔍 Filtrar por cargo..."
+          value={filtroCargo}
+          onChange={handleFiltroCargo}
+          className="filtro-cargo"
+        />
+
         <div className='tabla-actions'>
           <button onClick={() => {
             setMostrarFormulario(!mostrarFormulario);
             setIndexEditando(null);
-          }}
-          >
-            {mostrarFormulario ? '🔽 Ocultar Formulario' : 'Registrar Equipo'}
+          }}>
+            {mostrarFormulario ? '🔽 Ocultar Formulario' : '➕ Registrar Equipo'}
           </button>
 
           <button onClick={toggleDetalles}>
-            {mostrarDetalles ? 'Ocultar detalles' : 'Mostrar todos los campos'}
+            {mostrarDetalles ? '👁️‍🗨️ Ocultar detalles' : '👀 Mostrar todos los campos'}
           </button>
         </div>
       </div>
@@ -144,21 +175,32 @@ const TablaAsignaciones = ({ onEditar, onEliminar, onGuardarAsignacion, busqueda
         <FormEquipo
           onGuardar={handleGuardarAsignacion}
           datosEditar={indexEditando !== null ? datos[indexEditando] : null}
+          indexEditando={indexEditando}
         />
       )}
 
+      {/* Mostrar estadísticas */}
+      <div className="estadisticas">
+        <p>📊 Total de registros: <strong>{datos.length}</strong></p>
+        <p>🔍 Registros filtrados: <strong>{datosFiltrados.length}</strong></p>
+      </div>
+
       {/* Mostrar mensaje si no hay datos */}
-      {datos.length === 0 ? (
+      {datosFiltrados.length === 0 ? (
         <div className="no-datos">
-          No hay datos para mostrar
+          {datos.length === 0 ? 
+            "No hay datos para mostrar" : 
+            "No se encontraron registros con los filtros aplicados"
+          }
         </div>
       ) : (
         /* Tabla de asignaciones */
         <table className="tabla-asignaciones">
           <thead>
             <tr className='tabla-asignaciones-head'>
-              <th>ID Usuario</th>
+              <th>ID</th>
               <th>Usuario</th>
+              <th>Nombre</th>
               <th>Cargo</th>
               <th>Sede</th>
               <th>Tipo Equipo</th>
@@ -173,6 +215,7 @@ const TablaAsignaciones = ({ onEditar, onEliminar, onGuardarAsignacion, busqueda
                   <th>Tipo Contrato</th>
                   <th>Estado Acta</th>
                   <th>Fecha Entrega</th>
+                  <th>Laptop</th>
                   <th>Cargador Laptop</th>
                   <th>Docking Station</th>
                   <th>Cargador Docking</th>
@@ -186,39 +229,62 @@ const TablaAsignaciones = ({ onEditar, onEliminar, onGuardarAsignacion, busqueda
             </tr>
           </thead>
           <tbody>
-            {datos.map((dato, index) => (
-              <tr key={dato.id || index} className='tabla-asignacion-body'>
-                <td>{dato.id || 'N/A'}</td>
-                <td>{dato.usuario || 'N/A'}</td>
-                <td>{dato.cargo || 'N/A'}</td>
-                <td>{dato.sede || 'N/A'}</td>
-                <td>{dato.tipoEquipo || 'N/A'}</td>
-                <td>{dato.marca || 'N/A'}</td>
-                <td>{dato.serial || 'N/A'}</td>
-                <td>{dato.estado || 'N/A'}</td>
-                {mostrarDetalles && (
-                  <>
-                    <td>{dato.direccion || 'N/A'}</td>
-                    <td>{dato.gerencia || 'N/A'}</td>
-                    <td>{dato.modelo || 'N/A'}</td>
-                    <td>{dato.tipoContrato || 'N/A'}</td>
-                    <td>{dato.estadoActa || 'N/A'}</td>
-                    <td>{dato.fechaEntrega || 'N/A'}</td>
-                    <td>{dato.cargadorLaptop || 'N/A'}</td>
-                    <td>{dato.dockingStation || 'N/A'}</td>
-                    <td>{dato.cargadorDocking || 'N/A'}</td>
-                    <td>{dato.monitor || 'N/A'}</td>
-                    <td>{dato.maleta || 'N/A'}</td>
-                    <td>{dato.guaya || 'N/A'}</td>
-                    <td>{dato.adaptador || 'N/A'}</td>
-                  </>
-                )}
-                <td className='tabla-asignacion-actions'>
-                  <button onClick={() => handleEditar(index)}>🖊️</button>
-                  <button onClick={() => handleEliminar(index)}>🗑️</button>
-                </td>
-              </tr>
-            ))}
+            {datosFiltrados.map((dato, index) => {
+              // Encontrar el índice real en el array original
+              const indexReal = datos.findIndex(item => item.id === dato.id);
+              
+              return (
+                <tr key={dato.id || index} className='tabla-asignacion-body'>
+                  <td><strong>{dato.id || 'N/A'}</strong></td>
+                  <td>{dato.usuario || 'N/A'}</td>
+                  <td>{dato.nombre || 'N/A'}</td>
+                  <td>{dato.cargo || 'N/A'}</td>
+                  <td>{dato.sede || 'N/A'}</td>
+                  <td>{dato.tipoEquipo || 'N/A'}</td>
+                  <td>{dato.marca || 'N/A'}</td>
+                  <td>{dato.serial || 'N/A'}</td>
+                  <td>
+                    <span className={`estado-badge ${dato.estado?.toLowerCase() || ''}`}>
+                      {dato.estado || 'N/A'}
+                    </span>
+                  </td>
+                  {mostrarDetalles && (
+                    <>
+                      <td>{dato.direccion || 'N/A'}</td>
+                      <td>{dato.gerencia || 'N/A'}</td>
+                      <td>{dato.modelo || 'N/A'}</td>
+                      <td>{dato.tipoContrato || 'N/A'}</td>
+                      <td>{dato.estadoActa || 'N/A'}</td>
+                      <td>{dato.fechaEntrega || 'N/A'}</td>
+                      <td>{dato.laptop || 'N/A'}</td>
+                      <td>{dato.cargadorLaptop || 'N/A'}</td>
+                      <td>{dato.dockingStation || dato.docking || 'N/A'}</td>
+                      <td>{dato.cargadorDocking || 'N/A'}</td>
+                      <td>{dato.monitor || 'N/A'}</td>
+                      <td>{dato.maleta || 'N/A'}</td>
+                      <td>{dato.guaya || 'N/A'}</td>
+                      <td>{dato.adaptador || 'N/A'}</td>
+                    </>
+                  )}
+                  <td className='tabla-asignacion-actions'>
+                    <button 
+                      onClick={() => handleEditar(indexReal)}
+                      title="Editar registro"
+                      className="btn-editar"
+                    >
+                      ✏️
+                    </button>
+                    <button 
+                      onClick={() => handleEliminar(indexReal)}
+                      title="Eliminar registro"
+                      className="btn-eliminar"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
