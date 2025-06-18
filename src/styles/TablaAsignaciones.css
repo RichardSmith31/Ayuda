@@ -1,39 +1,108 @@
 .tabla-wrapper {
-  margin: 20px auto;
+  margin: 60px auto;
   width: 95%;
   overflow-x: auto;
 }
 
-.tabla-wrapper button {
-  margin-bottom: 15px;
-  background-color: #14a2c9;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
+.tabla-actions {
+  display: flex;
+  gap: 15px;
 }
 
-.tabla-wrapper button:hover {
-  background-color: #0f88ac;
+.tabla-actions button{
+  padding: 7px 15px;
+  background: #d4dbff25;
+  backdrop-filter: blur(5px);
+  border-radius: 5px;
+  border: none;
+  color: #ffffffe3;
+  cursor: pointer;
+  border: 1px solid #ffffff05;
+  box-shadow: 0 2px 15px rgba(255, 255, 255, 0.1);
+  transition: scale .1s ease-in-out;
+}
+
+.tabla-actions button:hover {
+  scale: 1.05;
 }
 
 .tabla-asignaciones {
   width: 100%;
+  margin-top: 25px;
   border-collapse: collapse;
 }
 
-.tabla-asignaciones th,
-.tabla-asignaciones td {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  text-align: left;
-  font-size: 14px;
+.tabla-asignaciones {
+  background: #d4dbff25;
+  backdrop-filter: blur(5px);
+  border-radius: 5px;
+  color: #ffffffd8;
+  font-weight: 200;
 }
 
-.tabla-asignaciones th {
-  background-color: #e8f7fb;
-  font-weight: bold;
-  color: #0e6ea8;
+.tabla-asignaciones-head {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 25px;
+}
+
+.tabla-asignaciones-head th {
+  width: 15%;
+  font-weight: 600;
+}
+
+.tabla-asignacion-body {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 25px;
+  gap: 10px;
+}
+
+.tabla-asignacion-body td {
+  width: 15%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #c2c2c2;
+}
+
+.tabla-asignacion-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.tabla-asignacion-actions button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer	;
+}
+
+.filtros-extra {
+  padding: 0 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+
+.filtros-extra select,
+.filtros-extra input {
+  width: 350px;
+  background: #d4dbff25;
+  backdrop-filter: blur(5px);
+  border: 1px solid #ffffff05;
+  box-shadow: 0 2px 15px rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  min-width: 200px;
+  color: #ffffff50; 
+  cursor: pointer;
+}
+
+.option {
+  color: #000;
 }

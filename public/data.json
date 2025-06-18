@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "usuario": "ricsanc", 
+        "nombre": "Richard Sanchez", 
+        "cargo": "Aprendiz SENA", 
+        "sede": "Connecta 80", 
+        "direccion": "Mi casa",
+        "tipoEquipo": "Laptop",
+        "marca": "Lenovo", 
+        "serial": "D12345678",
+        "estado": "Activo",
+        "laptop": "LAT-9982",
+        "cargadorLaptop": "CHG-4432",
+        "docking": "DK-2190",
+        "cargadorDocking": "CDK-7782",
+        "monitor": "MON-6621",
+        "maleta": "N/A", 
+        "guaya": "N/A", 
+        "adaptador": "N/A" 
+    },
+        {
+        "id": 2,
+        "usuario": "ricsanc", 
+        "nombre": "Richard Sanchez", 
+        "cargo": "Aprendiz SENA", 
+        "sede": "Connecta 80", 
+        "direccion": "Mi casa",
+        "tipoEquipo": "Laptop",
+        "marca": "Lenovo", 
+        "serial": "D12345678",
+        "estado": "Activo",
+        "laptop": "LAT-9982",
+        "cargadorLaptop": "CHG-4432",
+        "docking": "DK-2190",
+        "cargadorDocking": "CDK-7782",
+        "monitor": "MON-6621",
+        "maleta": "N/A", 
+        "guaya": "N/A", 
+        "adaptador": "N/A" 
+    }
+]

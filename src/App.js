@@ -1,40 +1,29 @@
-import React, { useState } from 'react';
-import Login from './components/Login';
+import React from 'react';
+import './App.css';
+
 import Dashboard from './components/Dashboard';
-import Invitado from './components/Invitado';
+import Particles from './components/Particles/Particles';
 
 function App() {
-  const [userRole, setUserRole] = useState(null);
-  const [datosAsignaciones, setDatosAsignaciones] = useState([]); // Datos compartidos
 
-  const handleLogin = (role) => {
-    setUserRole(role);
-  };
-
-  const handleLogout = () => {
-    setUserRole(null);
-    setDatosAsignaciones([]); // Limpiar datos al cerrar sesión si se desea
-  };
-
-  return (
-    <div>
-      {!userRole ? (
-        <Login onLogin={handleLogin} />
-      ) : userRole === 'admin' ? (
-        <Dashboard
-          role={userRole}
-          onLogout={handleLogout}
-          datos={datosAsignaciones}
-          setDatos={setDatosAsignaciones}
-        />
-      ) : (
-        <Invitado
-          datos={datosAsignaciones}
-          onLogout={handleLogout}
-        />
-      )}
+return (
+    <div className='app'>
+        <div className='particles-bg'>
+            <Particles
+                particleColors={['#ffffff', '#ffffff']}
+                particleCount={500}
+                particleSpread={10}
+                speed={0.01}
+                particleBaseSize={100}
+                moveParticlesOnHover={true}
+                alphaParticles={false}
+                disableRotation={false}
+            />
+        </div>
+        <Dashboard/>
     </div>
-  );
+);
+
 }
 
 export default App;
